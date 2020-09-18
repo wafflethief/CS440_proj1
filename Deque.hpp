@@ -45,10 +45,14 @@ void Deque__##t##__ctor(Deque__##t * dp, bool(*)(const t &o1, const t &o2);
 		free(dp->data);																			\
 	}																							\
 	size_t Deque_##t##_size(Deque_##t * dp){ 													\
-		if(dp != nullptr){															\
-			return dp->numElems;														\
-		}															\
-		else return 0;															\
+		if(dp){															\
+			return (size_t)dp->numElems;														\
+		}																				\
+		else{																		\
+			printf("u thought");																\
+			return 0;																	\
+																\
+		}														\
 	}																							\
 	bool Deque_##t##_empty(Deque_##t * dp){ 													\
 		return (dp->numElems == 0); 														\
