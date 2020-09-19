@@ -168,21 +168,21 @@
 			printf("uninitialized iterator");													\
 			return ;																			\
 		}													\
-		else{												\
+		else{											\
 			it->value += 1;															\
-			it->value %= it->deq->curSize;												\
+			it->value %= it->deq->curSize;											\
 		}																						\
 	}																							\
 	t & Deque_##t##_Iterator_deref(Deque_##t##_Iterator * it){									\
 		/*printf("Bob I want a divorce\n");		*/												\
-		if(it)	return (it->deq->data)[it->value];												\
+		if (it)	return (it->deq->data)[it->value];												\
 		else return (it->deq->data)[0];															\
 	}																							\
 	bool Deque_##t##_Iterator_equal(Deque_##t##_Iterator it, Deque_##t##_Iterator iter){		\
 		/*printf("it.value: %d\n", it.value);									\
 		printf("iter.deq->head: %d\n" ,iter.deq->head);								\
 		return it.value == (func(it.deq)).value;	*/								\
-		return (it.value)%(it.deq->curSize) == ((iter).value);									\
+		return (it.value) == (iter).value;									\
 	}																			\
 	Deque_##t##_Iterator Deque_##t##_begin(Deque_##t * dp){									\
 		Deque_##t##_Iterator  it;									\
@@ -196,7 +196,7 @@
 	Deque_##t##_Iterator Deque_##t##_end(Deque_##t * dp){										\
 		Deque_##t##_Iterator it;													\
 		it.deq = dp;												\
-		it.value = dp->tail;											\
+		it.value = dp->tail + 1;											\
 		it.inc = &(Deque_##t##_Iterator_inc);												\
 		it.deref = &(Deque_##t##_Iterator_deref);												\
 																\
