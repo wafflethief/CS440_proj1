@@ -16,7 +16,7 @@
 		size_t numElems;																		\
 		int curSize;																			\
 		char type_name[strlen("Deque_"#t) + 1];/*="Deque_"#t; len of type + nullbyte*/			\
-		void (*ctor)(Deque_##t * , bool(*con)(const t &, const t &));							\
+		void (*ctor)(Deque_##t * , bool(*)(const t &, const t &));							\
 		void (*dtor)(Deque_##t *);															\
 		t & (*front)(Deque_##t *);																\
 		t & (*back)(Deque_##t *);																\
@@ -26,19 +26,21 @@
 		void (*pop_front)(Deque_##t *);															\
 		size_t (*size)(Deque_##t *);															\
 		bool (*empty)(Deque_##t *);																\
-		Deque_##t##_Iterator (*begin)(Deque_##t *);												\
-		Deque_##t##_Iterator (*end)(Deque_##t *);									\
+		Deque_##t##_Iterator  (*begin)(Deque_##t *);											\
+		Deque_##t##_Iterator & (*end)(Deque_##t *);									\
 	};																							\
 	struct Deque_##t##_Iterator{										\
-		(*inc)(Deque_##t##_Iterator *);															\
-		/*(*equal)();									\
-		(*deref)();*/									\
-											\
+		void (*inc)(Deque_##t##_Iterator *);					\
+		int value;														\
+		t & (*deref)(Deque_##t##_Iterator *);									\
+	/*	bool (*equal)(Deque_##t##_Iterator, Deque_##t##_Iterator(*)(Deque_##t *));*/			\
+		bool (*equal)(Deque_##t##_Iterator, Deque_##t##_Iterator &);					\
+		Deque_##t * deq;									\
 											\
 											\
 											\
 	};										\
-	\
+												\
 	void Deque_##t##_dtor(Deque_##t * dp){														\
 		if(dp)																					\
 			free(dp->data);																		\
@@ -161,6 +163,46 @@
 		}													\
 		dp->numElems--;																			\
 	}																							\
+	void Deque_##t##_Iterator_inc(Deque_##t##_Iterator * it){					\
+		if(!it){												\
+			printf("uninitialized iterator");													\
+			return ;																			\
+		}													\
+		else{												\
+			it->value += 1;									\
+		}																						\
+	}																							\
+	t & Deque_##t##_Iterator_deref(Deque_##t##_Iterator * it){									\
+		printf("Bob I want a divorce\n");														\
+		if(it)	return (it->deq->data)[it->value];												\
+		else return (it->deq->data)[0];															\
+	}																							\
+	bool Deque_##t##_Iterator_equal(Deque_##t##_Iterator it, Deque_##t##_Iterator & iter){		\
+		/*printf("it.value: %d\n", it.value);													\
+		printf("iter.deq->head: %d\n" ,iter.deq->head);								\
+		return it.value == (func(it.deq)).value;	*/								\
+		printf("iter\n");																	\
+		return it.value == iter.value;												\
+	}																			\
+	Deque_##t##_Iterator Deque_##t##_begin(Deque_##t * dp){									\
+		Deque_##t##_Iterator  it;									\
+		it.deq = dp;														\
+		it.value = dp->head;												\
+		it.inc = &(Deque_##t##_Iterator_inc);								\
+		it.deref = &(Deque_##t##_Iterator_deref);												\
+		printf("it.deref(it): %d\n",it.deref(&it));											\
+		return it;	/*somehow this feels wrong*/									\
+	}																							\
+	Deque_##t##_Iterator & Deque_##t##_end(Deque_##t * dp){										\
+		Deque_##t##_Iterator * it;													\
+		it->deq = dp;												\
+		it->value = dp->tail;											\
+		it->inc = &(Deque_##t##_Iterator_inc);												\
+		it->deref = (Deque_##t##_Iterator_deref);												\
+															\
+															\
+		return *it;													\
+	}																							\
 	void Deque_##t##_ctor(Deque_##t * dp, bool(*func)(const t &o1, const t &o2)){				\
 		dp->data = /*(t*)malloc(50*sizeof(t));*/new t[50];										\
 		dp->head = -1;																			\
@@ -177,8 +219,10 @@
 		dp->push_back = &(Deque_##t##_push_back);												\
 		dp->push_front = &(Deque_##t##_push_front);												\
 		dp->pop_front = &(Deque_##t##_pop_front);										\
-		dp->pop_back = &(Deque_##t##_pop_back);										\
-												\
+		dp->pop_back = &(Deque_##t##_pop_back);											\
+		dp->begin = &(Deque_##t##_begin);												\
+		dp->end = &(Deque_##t##_end);													\
+								\
 	}
 
 #endif
