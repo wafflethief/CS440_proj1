@@ -169,7 +169,8 @@
 			return ;																			\
 		}													\
 		else{												\
-			it->value += 1;									\
+			it->value += 1;															\
+			it->value %= it->deq->curSize;												\
 		}																						\
 	}																							\
 	t & Deque_##t##_Iterator_deref(Deque_##t##_Iterator * it){									\
