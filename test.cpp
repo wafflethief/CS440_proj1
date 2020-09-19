@@ -126,13 +126,14 @@ main() {
         assert(deq.size(&deq) == 0);
         // size() should return a size_t.
         assert(typeid(std::size_t) == typeid(decltype(deq.size(&deq))));
+		assert(deq.numElems == 0);
         assert(deq.empty(&deq));
 
         // Should print "---- Deque_MyClass, 14".
         printf("---- %s, %d\n", deq.type_name, (int) sizeof(deq.type_name));
         // std::cout << "---- " << deq.type_name << ", " << sizeof(deq.type_name) << std::endl;
         assert(sizeof deq.type_name == 14);
-/*
+
         deq.push_back(&deq, MyClass{1, "Joe"});
         deq.push_back(&deq, MyClass{2, "Mary"});
         deq.push_back(&deq, MyClass{3, "Tom"});
@@ -142,15 +143,15 @@ main() {
         MyClass_print(&deq.front(&deq));
         MyClass_print(&deq.back(&deq));
         assert(deq.front(&deq).id == -1);
-        assert(deq.back(&deq).id == 3);*/
-/*
+        assert(deq.back(&deq).id == 3);
+
         deq.pop_front(&deq);
         deq.pop_back(&deq);
         assert(deq.front(&deq).id == 0);
         assert(deq.back(&deq).id == 2);
 
         assert(deq.size(&deq) == 3);
-		
+
         for (Deque_MyClass_Iterator it = deq.begin(&deq);
          !Deque_MyClass_Iterator_equal(it, deq.end(&deq)); it.inc(&it)) {
             MyClass_print(&it.deref(&it));
@@ -180,9 +181,10 @@ main() {
         // printf("Using at.\n");
 
        for (size_t i = 0; i < 3; i++) {
+			printf("Dierdre let me live my life");
             MyClass_print(&deq.at(&deq, i));
         }
-
+/*
         // Test that front(), back(), at(), and deref() are returning a reference.
         // Change via at().
         assert(deq.at(&deq, 0).id == 0);
