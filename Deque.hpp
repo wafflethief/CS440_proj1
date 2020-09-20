@@ -10,11 +10,11 @@
 	struct Deque_##t##_Iterator;																\
 	struct Deque_##t{																			\
 		t * data;																				\
-		int head; 																				\
-		int tail;																				\
+		long head; 																				\
+		long tail;																				\
 		bool isFull;																			\
 		size_t numElems;																		\
-		int curSize;																			\
+		long curSize;																			\
 		char type_name[strlen("Deque_"#t) + 1];/*="Deque_"#t; len of type + nullbyte*/			\
 		void (*ctor)(Deque_##t * , bool(*)(const t &, const t &));							\
 		void (*dtor)(Deque_##t *);															\
@@ -44,9 +44,8 @@
 	};										\
 												\
 	void Deque_##t##_dtor(Deque_##t * dp){														\
-		if(dp && dp->data != nullptr){												\
-			printf("value of dp->data: %d\n", dp->data);							\
-			free(dp->data);																	\
+		if(dp && dp->data != nullptr && &dp != nullptr && &(dp->data) != nullptr){			\
+			free(dp->data);/*delete dp->data;*/											\
 		}																				\
 	}																							\
 	size_t Deque_##t##_size(Deque_##t * dp){												\
@@ -71,43 +70,64 @@
 		if(dp->numElems == dp->curSize ||													\
 		dp->head == dp->tail+1 ||																\
 		(dp->head == 0 && dp->tail == dp->curSize - 1)){	/*DEQUE FULL*/					\
-			printf("DEQUE FULL\n");															\
-			t * temp_data = dp->data;	/*store old data while we resize*/						\
-			dp->curSize *=2;																\
-			dp->data = new t[(dp->curSize)*sizeof(t)]; 											\
-			memcpy(&dp->data, &temp_data, sizeof(temp_data));							\
+			printf("DEQUE FULL\n");													\
+			/*dp->curSize *= 2;														\
+			t * temp_data = dp->data;							\
+			dp->data = (t*)malloc(sizeof(t)*dp->curSize);				\
+			memcpy(&(dp->data), &temp_data, );	*/						\
+			/*temp_data = (t*)realloc(&dp->data, sizeof(t)*dp->curSize);				\
+			dp->data = temp_data;*/													\
+			/*dp->data = (t*)realloc((t*)&dp->data, sizeof(t)*dp->curSize);*/			\
+			t * temp_data = dp->data;					\
+			dp->data = (t*)malloc(sizeof(t)*dp->curSize*2);				\
+			if(dp->head > dp->tail){													\
+				memcpy(&(dp->data[0]), &(temp_data[0]), sizeof(t)*(dp->tail + 1));		\
+				memcpy(&(dp->data[dp->curSize + dp->head]), &(temp_data[dp->head]), sizeof(t)*(dp->curSize - dp->head));\
+				dp->head += dp->curSize;										\
+				dp->tail += 1;										\
+				free(temp_data);										\
+			}													\
+			else if(dp->head < dp->tail){													\
+				memcpy(&(dp->data[0]), &(temp_data[0]), sizeof(t)*(dp->curSize));					\
+												\
+												\
+				dp->tail += 1;								\
+				free(temp_data);								\
+			}																		\
+			dp->curSize *= 2;								\
 		}																						\
 		else{																					\
 			if(dp->head == -1 && dp->numElems == 0){	/* DEQUE EMPTY*/						\
 				/*printf("Deque empty\n");*/						\
 				dp->head = 0;									\
 				dp->tail = 0;									\
-																\
 			}																					\
 			else if(dp->tail == dp->curSize - 1){	/*TAIL AT END OF DEQUE*/					\
 				/*printf("Tail at end of deque\n");*/											\
 				dp->tail = 0;														\
-																		\
 			}																					\
 			else{	/*OTHERWISE JUST ADD TO BACK*/												\
 				/*printf("Otherwise just to back\n");*/											\
 				dp->tail += 1;															\
-																			\
 			}																\
 		}																						\
-		dp->data[dp->tail] = obj;																\
+		dp->tail %= dp->curSize;												\
+		dp->data[dp->tail] = obj;											\
 		dp->numElems += 1;																		\
-																								\
 	}																							\
 	void Deque_##t##_push_front(Deque_##t * dp, t obj){											\
 		if(dp->numElems == dp->curSize ||											\
 		(dp->head == 0 && dp->tail == dp->curSize - 1)){										\
-			/*printf("deque full\n");*/												\
-			t * temp_data = dp->data;												\
-			dp->curSize *= 2;												\
-			dp->data = new t[(dp->curSize)*sizeof(t)];												\
-			memcpy(&dp->data, &temp_data, sizeof(temp_data));									\
-		}													\
+			printf("deque full\n");												\
+			dp->curSize *= 2;					\
+			t * temp_data =	dp->data;		\
+		/*	dp->data =new t[(dp->curSize)*sizeof(t)];	*/	 \
+			/*dp->data = (t*)malloc(sizeof(t)*dp->curSize);*/				\
+			dp->data = (t*)realloc((t*)&dp->data, sizeof(t)*dp->curSize);		\
+			memcpy(&dp->data, &temp_data, sizeof(temp_data));					\
+			/*dp->data = temp_data;*/														\
+			/*free(temp_data);*/											\
+		}																			\
 		else{													\
 			if(dp->head == -1 && dp->numElems == 0){				\
 				/*printf("deque empty\n");			*/								\
@@ -124,6 +144,7 @@
 															\
 			}												\
 		}													\
+		dp->head %= dp->curSize;											\
 		dp->data[dp->head] = obj;																\
 		dp->numElems += 1;																		\
 	}																							\
@@ -246,7 +267,7 @@
 		return true;											\
 	}																		\
 	void Deque_##t##_ctor(Deque_##t * dp, bool(*func)(const t &o1, const t &o2)){				\
-		dp->data = new t[10];										\
+		dp->data = /*new t[10*sizeof(t)];*/(t*)malloc(sizeof(t)*10);							\
 		dp->head = -1;																			\
 		dp->tail = 0;																			\
 		dp->isFull = false;																		\
