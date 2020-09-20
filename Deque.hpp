@@ -21,14 +21,17 @@
 		t & (*front)(Deque_##t *);																\
 		t & (*back)(Deque_##t *);																\
 		void (*push_back)(Deque_##t * , t );													\
-		void (*push_front)(Deque_##t *, t);													\
+		void (*push_front)(Deque_##t *, t);														\
 		void (*pop_back)(Deque_##t *);															\
 		void (*pop_front)(Deque_##t *);															\
 		size_t (*size)(Deque_##t *);															\
 		bool (*empty)(Deque_##t *);																\
 		Deque_##t##_Iterator  (*begin)(Deque_##t *);											\
-		Deque_##t##_Iterator (*end)(Deque_##t *);									\
-		t & (*at)(Deque_##t *, size_t);												\
+		Deque_##t##_Iterator (*end)(Deque_##t *);												\
+		t & (*at)(Deque_##t *, size_t);															\
+		void (*clear)(Deque_##t *);																\
+		bool (*equal)(Deque_##t, Deque_##t);											\
+		bool (*eq)(const t &, const t &);		\
 	};																							\
 	struct Deque_##t##_Iterator{										\
 		void (*inc)(Deque_##t##_Iterator *);					\
@@ -99,7 +102,7 @@
 	void Deque_##t##_push_front(Deque_##t * dp, t obj){											\
 		if(dp->numElems == dp->curSize ||											\
 		(dp->head == 0 && dp->tail == dp->curSize - 1)){										\
-			printf("deque full\n");												\
+			/*printf("deque full\n");*/												\
 			t * temp_data = dp->data;												\
 			dp->curSize *= 2;												\
 			dp->data = new t[dp->curSize];												\
@@ -107,16 +110,16 @@
 		}													\
 		else{													\
 			if(dp->head == -1 && dp->numElems == 0){				\
-				printf("deque empty\n");											\
+				/*printf("deque empty\n");			*/								\
 				dp->head = 0;																	\
 				dp->tail = 0;																	\
 			}												\
 			else if (dp->head == 0){												\
-				printf("head at first pos of deque\n");											\
+				/*printf("head at first pos of deque\n");*/											\
 				dp->head = dp->curSize - 1;														\
 			}												\
 			else{																				\
-				printf("just adding to front\n");										\
+			/*	printf("just adding to front\n");	*/									\
 				dp->head -= 1;												\
 															\
 			}												\
@@ -130,7 +133,7 @@
 			return ;																			\
 		}																						\
 		else if(dp->head == dp->tail){ /*what about overlap?*/					\
-			printf("Only one elem to pop");				\
+			/*printf("Only one elem to pop");		*/		\
 			dp->head = -1;														\
 			dp->tail = -1; /*change to -1?*/										\
 		}																						\
@@ -141,17 +144,16 @@
 			else{												\
 				dp->head++;												\
 			}												\
-			/*should I delete the object?*/												\
 		}													\
 		dp->numElems--;										\
 	}														\
 	void Deque_##t##_pop_back(Deque_##t * dp){													\
 		if(!dp || dp->numElems == 0 || (dp->head == -1 && dp->tail == 0)){						\
-			printf("Cannot pop from empty queue");												\
+			printf("Cannot pop from empty queue");											\
 			return ;																			\
 		}																						\
 		if(dp->head == dp->tail){													\
-			printf("only one elem to pop");													\
+			/*printf("only one elem to pop");	*/												\
 			dp->head = -1;																		\
 			dp->tail = -1;																		\
 		}													\
@@ -182,7 +184,7 @@
 		/*printf("it.value: %d\n", it.value);									\
 		printf("iter.deq->head: %d\n" ,iter.deq->head);								\
 		return it.value == (func(it.deq)).value;	*/								\
-		return (it.value) == (iter).value;									\
+		return (it.value) == iter.value;									\
 	}																				\
 	void Deque_##t##_Iterator_dec(Deque_##t##_Iterator * it){								\
 		it->value -= 1;															\
@@ -193,8 +195,38 @@
 		i += dp->head;											\
 		return dp->data[i%dp->curSize];							\
 		/*as logically wrong as this seems, it doth work*/								\
-														\
 	}													\
+	void Deque_##t##_clear(Deque_##t * dp){													\
+		dp->numElems = 0;																\
+		dp->head = -1;								\
+		dp->tail = 0;																	\
+	}																					\
+	/*bool Deque_##t##_eq(const t & o1, const t & o2){										\
+		if o1									\
+		return true;									\
+	}							*/			\
+	bool Deque_##t##_equal(Deque_##t deq1, Deque_##t deq2){										\
+		if((deq1.numElems != deq2.numElems) || (deq1.curSize != deq2.curSize))					\
+			return false;											\
+		Deque_##t##_Iterator it1 = deq1.begin(&deq1);							\
+		Deque_##t##_Iterator it2 = deq2.begin(&deq2);							\
+		/*for(size_t i = 0; i < deq1.curSize; i++){					\
+			const t d1 = deq1.deref(&deq1, i);											\
+			const t d2 = deq2.deref(&deq2, i);								\
+			if(deq1.eq(&d1, d2) || deq1) return false											\
+		}*/																					\
+		while(!it1.equal(it1, deq1.end(&deq1))){												\
+			printf("Dierdre, please understand me");										\
+			/*bool yum = deq1.eq(it1.deref(&it1), it2.deref(&it2));								\
+			bool y2 = deq1.eq(it2.deref(&it2), it1.deref(&it1));																			\
+			printf("yum: %d\n",yum);												\
+			if(yum || y2) return false;													\
+			it1.inc(&it1);										\
+			it2.inc(&it2);*/									\
+		}												\
+														\
+		return true;											\
+	}																					\
 	Deque_##t##_Iterator Deque_##t##_begin(Deque_##t * dp){									\
 		Deque_##t##_Iterator  it;									\
 		it.deq = dp;														\
@@ -235,6 +267,9 @@
 		dp->begin = &(Deque_##t##_begin);												\
 		dp->end = &(Deque_##t##_end);													\
 		dp->at = &(Deque_##t##_at);													\
+		dp->clear = &(Deque_##t##_clear);											\
+		dp->equal = &(Deque_##t##_equal);											\
+		dp->eq = (func);																			\
 	}
 
 #endif
