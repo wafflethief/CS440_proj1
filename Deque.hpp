@@ -31,8 +31,9 @@
 		t & (*at)(Deque_##t *, size_t);															\
 		void (*clear)(Deque_##t *);																\
 		bool (*equal)(Deque_##t, Deque_##t);											\
-		bool (*eq)(const t &, const t &);		\
-	};																							\
+		bool (*eq)(const t &, const t &);									\
+		void (*sort)(Deque_##t *, Deque_##t##_Iterator , Deque_##t##_Iterator );\
+	};																						\
 	struct Deque_##t##_Iterator{										\
 		void (*inc)(Deque_##t##_Iterator *);					\
 		int value;														\
@@ -70,15 +71,7 @@
 		if(dp->numElems == dp->curSize ||													\
 		dp->head == dp->tail+1 ||																\
 		(dp->head == 0 && dp->tail == dp->curSize - 1)){	/*DEQUE FULL*/					\
-			printf("DEQUE FULL\n");													\
-			/*dp->curSize *= 2;														\
-			t * temp_data = dp->data;							\
-			dp->data = (t*)malloc(sizeof(t)*dp->curSize);				\
-			memcpy(&(dp->data), &temp_data, );	*/						\
-			/*temp_data = (t*)realloc(&dp->data, sizeof(t)*dp->curSize);				\
-			dp->data = temp_data;*/													\
-			/*dp->data = (t*)realloc((t*)&dp->data, sizeof(t)*dp->curSize);*/			\
-			t * temp_data = dp->data;					\
+			t * temp_data = dp->data;								\
 			dp->data = (t*)malloc(sizeof(t)*dp->curSize*2);				\
 			if(dp->head > dp->tail){													\
 				memcpy(&(dp->data[0]), &(temp_data[0]), sizeof(t)*(dp->tail + 1));		\
@@ -119,14 +112,18 @@
 		if(dp->numElems == dp->curSize ||											\
 		(dp->head == 0 && dp->tail == dp->curSize - 1)){										\
 			printf("deque full\n");												\
-			dp->curSize *= 2;					\
-			t * temp_data =	dp->data;		\
-		/*	dp->data =new t[(dp->curSize)*sizeof(t)];	*/	 \
-			/*dp->data = (t*)malloc(sizeof(t)*dp->curSize);*/				\
-			dp->data = (t*)realloc((t*)&dp->data, sizeof(t)*dp->curSize);		\
-			memcpy(&dp->data, &temp_data, sizeof(temp_data));					\
-			/*dp->data = temp_data;*/														\
-			/*free(temp_data);*/											\
+			t * temp_data = dp->data;					\
+			dp->data = (t*)malloc(sizeof(t)*dp->curSize*2);				\
+			if(dp->head > dp->tail){													\
+				memcpy(&(dp->data[0]), &(temp_data[0]), sizeof(t)*(dp->tail + 1));		\
+				memcpy(&(dp->data[dp->curSize + dp->head]), &(temp_data[dp->head]), sizeof(t)*(dp->curSize - dp->head));\
+				dp->head += dp->curSize -1;										\
+			}													\
+			else if(dp->head < dp->tail){													\
+				memcpy(&(dp->data[0]), &(temp_data[0]), sizeof(t)*(dp->curSize));					\
+				dp->head -= 1;								\
+			}																		\
+			free(temp_data);																\
 		}																			\
 		else{													\
 			if(dp->head == -1 && dp->numElems == 0){				\
@@ -148,6 +145,17 @@
 		dp->data[dp->head] = obj;																\
 		dp->numElems += 1;																		\
 	}																							\
+	void Deque_##t##_sort(Deque_##t * dp, Deque_##t##_Iterator it1, Deque_##t##_Iterator it2){	\
+		Deque_##t##_Iterator iter = it1;							\
+		bool notSorted = false;								\
+		for(;it1.value != it2.value; it1.inc(&it1)){							\
+			printf("LASAGNAS MARY. THAT'S WHAT THIS IS ABOUT");						\
+									\
+									\
+									\
+									\
+		}							\
+	}								\
 	void Deque_##t##_pop_front(Deque_##t * dp){												\
 		if(!dp || dp->numElems == 0 || (dp->head == -1 && dp->tail == 0)){						\
 			printf("Cannot pop from empty queue");												\
@@ -234,7 +242,6 @@
 		it.deref = &(Deque_##t##_Iterator_deref);												\
 		it.dec = &(Deque_##t##_Iterator_dec);										\
 												\
-		/*printf("it.deref(it): %d\n",it.deref(&it));*/										\
 		return it;										\
 	}																							\
 	Deque_##t##_Iterator Deque_##t##_end(Deque_##t * dp){										\
@@ -288,7 +295,8 @@
 		dp->at = &(Deque_##t##_at);													\
 		dp->clear = &(Deque_##t##_clear);											\
 		dp->equal = &(Deque_##t##_equal);											\
-		dp->eq = (func);																			\
+		dp->eq = (func);																		\
+		dp->sort = &(Deque_##t##_sort);					\
 	}
 
 #endif
