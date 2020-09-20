@@ -37,7 +37,6 @@
 		void (*inc)(Deque_##t##_Iterator *);					\
 		int value;														\
 		t & (*deref)(Deque_##t##_Iterator *);									\
-	/*	bool (*equal)(Deque_##t##_Iterator, Deque_##t##_Iterator(*)(Deque_##t *));*/			\
 		bool (*equal)(Deque_##t##_Iterator, Deque_##t##_Iterator );					\
 		Deque_##t * deq;									\
 		void (*dec)(Deque_##t##_Iterator *);									\
@@ -204,31 +203,9 @@
 	/*bool Deque_##t##_eq(const t & o1, const t & o2){										\
 		if o1									\
 		return true;									\
-	}							*/			\
-	bool Deque_##t##_equal(Deque_##t deq1, Deque_##t deq2){										\
-		if((deq1.numElems != deq2.numElems) || (deq1.curSize != deq2.curSize))					\
-			return false;											\
-		Deque_##t##_Iterator it1 = deq1.begin(&deq1);							\
-		Deque_##t##_Iterator it2 = deq2.begin(&deq2);							\
-		/*for(size_t i = 0; i < deq1.curSize; i++){					\
-			const t d1 = deq1.deref(&deq1, i);											\
-			const t d2 = deq2.deref(&deq2, i);								\
-			if(deq1.eq(&d1, d2) || deq1) return false											\
-		}*/																					\
-		while(!it1.equal(it1, deq1.end(&deq1))){												\
-			printf("Dierdre, please understand me");										\
-			/*bool yum = deq1.eq(it1.deref(&it1), it2.deref(&it2));								\
-			bool y2 = deq1.eq(it2.deref(&it2), it1.deref(&it1));																			\
-			printf("yum: %d\n",yum);												\
-			if(yum || y2) return false;													\
-			it1.inc(&it1);										\
-			it2.inc(&it2);*/									\
-		}												\
-														\
-		return true;											\
-	}																					\
+	}							*/													\
 	Deque_##t##_Iterator Deque_##t##_begin(Deque_##t * dp){									\
-		Deque_##t##_Iterator  it;									\
+		Deque_##t##_Iterator it;									\
 		it.deq = dp;														\
 		it.value = dp->head;												\
 		it.inc = &(Deque_##t##_Iterator_inc);								\
@@ -247,6 +224,27 @@
 		it.dec = &(Deque_##t##_Iterator_dec);										\
 		return it;													\
 	}																							\
+	bool Deque_##t##_equal(Deque_##t deq1, Deque_##t deq2){										\
+		if((deq1.numElems != deq2.numElems) || (deq1.curSize != deq2.curSize))					\
+			return false;											\
+		Deque_##t##_Iterator it1 = deq1.begin(&deq1);							\
+		Deque_##t##_Iterator it2 = deq2.begin(&deq2);							\
+		/*for(size_t i = 0; i < deq1.curSize; i++){					\
+			const t d1 = deq1.deref(&deq1, i);											\
+			const t d2 = deq2.deref(&deq2, i);								\
+			if(deq1.eq(&d1, d2) || deq1) return false											\
+		}*/																					\
+		while(!Deque_##t##_Iterator_equal(it1, deq1.end(&deq1))){							\
+			bool yum = deq1.eq(it1.deref(&it1), it2.deref(&it2));								\
+			bool y2 = deq1.eq(it2.deref(&it2), it1.deref(&it1));					\
+			printf("yum: %d\n",yum);												\
+			if(yum || y2) return false;													\
+			it1.inc(&it1);										\
+			it2.inc(&it2);									\
+		}												\
+														\
+		return true;											\
+	}																		\
 	void Deque_##t##_ctor(Deque_##t * dp, bool(*func)(const t &o1, const t &o2)){				\
 		dp->data = new t[10];										\
 		dp->head = -1;																			\
