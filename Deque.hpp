@@ -44,8 +44,10 @@
 	};										\
 												\
 	void Deque_##t##_dtor(Deque_##t * dp){														\
-		if(dp)																					\
-			free(dp->data);																		\
+		if(dp && dp->data != nullptr){												\
+			printf("value of dp->data: %d\n", dp->data);							\
+			free(dp->data);																	\
+		}																				\
 	}																							\
 	size_t Deque_##t##_size(Deque_##t * dp){												\
 		if(dp != nullptr && dp->numElems && !dp->empty(dp)){						\
@@ -69,27 +71,26 @@
 		if(dp->numElems == dp->curSize ||													\
 		dp->head == dp->tail+1 ||																\
 		(dp->head == 0 && dp->tail == dp->curSize - 1)){	/*DEQUE FULL*/					\
-			printf("DEQUE FULL");																\
+			printf("DEQUE FULL\n");															\
 			t * temp_data = dp->data;	/*store old data while we resize*/						\
 			dp->curSize *=2;																\
-			dp->data = new t[dp->curSize]; 													\
+			dp->data = new t[(dp->curSize)*sizeof(t)]; 											\
 			memcpy(&dp->data, &temp_data, sizeof(temp_data));							\
-															\
 		}																						\
 		else{																					\
 			if(dp->head == -1 && dp->numElems == 0){	/* DEQUE EMPTY*/						\
-				printf("Deque empty\n");						\
+				/*printf("Deque empty\n");*/						\
 				dp->head = 0;									\
 				dp->tail = 0;									\
 																\
 			}																					\
 			else if(dp->tail == dp->curSize - 1){	/*TAIL AT END OF DEQUE*/					\
-				printf("Tail at end of deque\n");												\
+				/*printf("Tail at end of deque\n");*/											\
 				dp->tail = 0;														\
 																		\
 			}																					\
 			else{	/*OTHERWISE JUST ADD TO BACK*/												\
-				printf("Otherwise just to back\n");											\
+				/*printf("Otherwise just to back\n");*/											\
 				dp->tail += 1;															\
 																			\
 			}																\
@@ -104,7 +105,7 @@
 			/*printf("deque full\n");*/												\
 			t * temp_data = dp->data;												\
 			dp->curSize *= 2;												\
-			dp->data = new t[dp->curSize];												\
+			dp->data = new t[(dp->curSize)*sizeof(t)];												\
 			memcpy(&dp->data, &temp_data, sizeof(temp_data));									\
 		}													\
 		else{													\
@@ -114,7 +115,7 @@
 				dp->tail = 0;																	\
 			}												\
 			else if (dp->head == 0){												\
-				/*printf("head at first pos of deque\n");*/											\
+				/*printf("head at first pos of deque\n");*/										\
 				dp->head = dp->curSize - 1;														\
 			}												\
 			else{																				\
@@ -237,7 +238,6 @@
 		while(!Deque_##t##_Iterator_equal(it1, deq1.end(&deq1))){							\
 			bool yum = deq1.eq(it1.deref(&it1), it2.deref(&it2));								\
 			bool y2 = deq1.eq(it2.deref(&it2), it1.deref(&it1));					\
-			printf("yum: %d\n",yum);												\
 			if(yum || y2) return false;													\
 			it1.inc(&it1);										\
 			it2.inc(&it2);									\

@@ -181,10 +181,9 @@ main() {
         // printf("Using at.\n");
 
        for (size_t i = 0; i < 3; i++) {
-			printf("Dierdre let me live my life");
             MyClass_print(&deq.at(&deq, i));
         }
-/*
+
         // Test that front(), back(), at(), and deref() are returning a reference.
         // Change via at().
         assert(deq.at(&deq, 0).id == 0);
@@ -238,9 +237,9 @@ main() {
             deq1.dtor(&deq1);
             deq2.dtor(&deq2);
         }
-	*/	
+		
     }
-/*
+
     // Test that it can handle other types.  Tests are the same, more or less.
     {
         Deque_int deq;
@@ -342,7 +341,7 @@ main() {
             deq.push_front(&deq, i);
             deq.pop_back(&deq);
         }
-
+		
         // To do some computation, to prevent compiler from optimizing out.
         size_t sum = 0, max_size = 0;
         // Random.
@@ -379,7 +378,7 @@ main() {
         printf("%d push_backs, %d push_fronts, %d pop_backs, %d pop_fronts, %d size\n", pb, pf, pob, pof, (int) deq.size(&deq));
         deq.dtor(&deq);
     }
-
+/*
     // Test random access performance
     {
        size_t sum = 0;
@@ -396,8 +395,8 @@ main() {
        }
        printf("Sum of all integers between %d and %d calculated using a deque is %lu.\n", lo, hi, sum);
        deq.dtor(&deq);
-    }
-
+    }*/
+/*
     // Test sort.
     // You must be able to work with the correct less-than function.
     {
@@ -522,8 +521,8 @@ main() {
 
        deq1.dtor(&deq1);
 
-    }*/
-	
+    }
+	*/
    // Print allocation info
    printf("%ld allocations totalling %ld bytes\n", alloc_call_count, total_bytes_allocated);
    int rv = fclose(devnull);
