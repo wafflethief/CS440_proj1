@@ -31,7 +31,7 @@
 		t & (*at)(Deque_##t *, size_t);															\
 		void (*clear)(Deque_##t *);																\
 		bool (*equal)(Deque_##t, Deque_##t);											\
-		bool (*eq)(const t &, const t &);									\
+		bool (*compar)(const t &, const t &);									\
 		void (*sort)(Deque_##t *, Deque_##t##_Iterator , Deque_##t##_Iterator );\
 	};																						\
 	struct Deque_##t##_Iterator{										\
@@ -145,17 +145,6 @@
 		dp->data[dp->head] = obj;																\
 		dp->numElems += 1;																		\
 	}																							\
-	void Deque_##t##_sort(Deque_##t * dp, Deque_##t##_Iterator it1, Deque_##t##_Iterator it2){	\
-		Deque_##t##_Iterator iter = it1;							\
-		bool notSorted = false;								\
-		for(;it1.value != it2.value; it1.inc(&it1)){							\
-			printf("LASAGNAS MARY. THAT'S WHAT THIS IS ABOUT");						\
-									\
-									\
-									\
-									\
-		}							\
-	}								\
 	void Deque_##t##_pop_front(Deque_##t * dp){												\
 		if(!dp || dp->numElems == 0 || (dp->head == -1 && dp->tail == 0)){						\
 			printf("Cannot pop from empty queue");												\
@@ -210,15 +199,11 @@
 		else return (it->deq->data)[0];															\
 	}																							\
 	bool Deque_##t##_Iterator_equal(Deque_##t##_Iterator it, Deque_##t##_Iterator iter){		\
-		/*printf("it.value: %d\n", it.value);									\
-		printf("iter.deq->head: %d\n" ,iter.deq->head);								\
-		return it.value == (func(it.deq)).value;	*/								\
 		return (it.value) == iter.value;									\
 	}																				\
 	void Deque_##t##_Iterator_dec(Deque_##t##_Iterator * it){								\
 		it->value -= 1;															\
 		it->value %= it->deq->curSize;															\
-																	\
 	}																\
 	t & Deque_##t##_at(Deque_##t * dp, size_t i){								\
 		i += dp->head;											\
@@ -230,10 +215,35 @@
 		dp->head = -1;								\
 		dp->tail = 0;																	\
 	}																					\
-	/*bool Deque_##t##_eq(const t & o1, const t & o2){										\
-		if o1									\
-		return true;									\
-	}							*/													\
+	void Deque_##t##_sort(Deque_##t * dp, Deque_##t##_Iterator it2, Deque_##t##_Iterator it1){	\
+		\
+		Deque_##t##_Iterator iter = dp->begin(dp);							\
+		size_t range = (it1.value < it2.value) ? (it2.value-it1.value) : (it1.value - it2.value);		\
+		/*for(int i = 0; i < dp->curSize; i++){printf("at index %d, data is %d\n ",i, dp->data[i]);}*/\
+		qsort(&(dp->data[it2.value]), range, sizeof(t),(int(*)(const void* o1,const void* o2))dp->compar);	\
+		/*long start = 0;		\
+		long end = dp->curSize - 1;		\
+		t temp;						\
+		while(start < end){								\
+			temp = dp->data[start];								\
+			dp->data[start] = dp->data[end];							\
+			dp->data[end] = temp;							\
+			if(start < 100)printf("at start %d: %d\n", start, dp->data[start]);				\
+			start++;							\
+			end--;							\
+										\
+		}								\
+		dp->head = 0; dp->tail = dp->numElems;	*/		\
+/*		while(it1.value < it2.value){											\
+			t temp = dp->data[it1.value];						\
+			dp->data[it1.value] = dp->data[it2.value];									\
+			dp->data[it2.value] = temp;							\
+			it1.inc(&it1);									\
+			it2.dec(&it2);									\
+		}									*/				\
+		/*qsort(&(it1.deq->data), dp->size(dp), sizeof(t), (int(*)(const void *, const void *))dp->compar);	\
+		qsort(&(it2.deq->data), dp->size(dp), sizeof(t), (int(*)(const void *, const void *))dp->compar);*/	\
+	}								\
 	Deque_##t##_Iterator Deque_##t##_begin(Deque_##t * dp){									\
 		Deque_##t##_Iterator it;									\
 		it.deq = dp;														\
@@ -241,7 +251,6 @@
 		it.inc = &(Deque_##t##_Iterator_inc);								\
 		it.deref = &(Deque_##t##_Iterator_deref);												\
 		it.dec = &(Deque_##t##_Iterator_dec);										\
-												\
 		return it;										\
 	}																							\
 	Deque_##t##_Iterator Deque_##t##_end(Deque_##t * dp){										\
@@ -255,22 +264,17 @@
 	}																							\
 	bool Deque_##t##_equal(Deque_##t deq1, Deque_##t deq2){										\
 		if((deq1.numElems != deq2.numElems) || (deq1.curSize != deq2.curSize))					\
-			return false;											\
-		Deque_##t##_Iterator it1 = deq1.begin(&deq1);							\
-		Deque_##t##_Iterator it2 = deq2.begin(&deq2);							\
-		/*for(size_t i = 0; i < deq1.curSize; i++){					\
-			const t d1 = deq1.deref(&deq1, i);											\
-			const t d2 = deq2.deref(&deq2, i);								\
-			if(deq1.eq(&d1, d2) || deq1) return false											\
-		}*/																					\
+			return false;															\
+		Deque_##t##_Iterator it1 = deq1.begin(&deq1);								\
+		Deque_##t##_Iterator it2 = deq2.begin(&deq2);								\
+																						\
 		while(!Deque_##t##_Iterator_equal(it1, deq1.end(&deq1))){							\
-			bool yum = deq1.eq(it1.deref(&it1), it2.deref(&it2));								\
-			bool y2 = deq1.eq(it2.deref(&it2), it1.deref(&it1));					\
-			if(yum || y2) return false;													\
+			bool yum = deq1.compar(it1.deref(&it1), it2.deref(&it2));							\
+			bool y2 = deq2.compar(it2.deref(&it2), it1.deref(&it1));					\
+			if(y2 || yum) return false;													\
 			it1.inc(&it1);										\
 			it2.inc(&it2);									\
 		}												\
-														\
 		return true;											\
 	}																		\
 	void Deque_##t##_ctor(Deque_##t * dp, bool(*func)(const t &o1, const t &o2)){				\
@@ -295,7 +299,7 @@
 		dp->at = &(Deque_##t##_at);													\
 		dp->clear = &(Deque_##t##_clear);											\
 		dp->equal = &(Deque_##t##_equal);											\
-		dp->eq = (func);																		\
+		dp->compar = (func);																	\
 		dp->sort = &(Deque_##t##_sort);					\
 	}
 
