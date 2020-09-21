@@ -123,10 +123,10 @@ main() {
     {
         Deque_MyClass deq;
         Deque_MyClass_ctor(&deq, MyClass_less_by_id);
+
         assert(deq.size(&deq) == 0);
         // size() should return a size_t.
         assert(typeid(std::size_t) == typeid(decltype(deq.size(&deq))));
-		assert(deq.numElems == 0);
         assert(deq.empty(&deq));
 
         // Should print "---- Deque_MyClass, 14".
@@ -139,7 +139,7 @@ main() {
         deq.push_back(&deq, MyClass{3, "Tom"});
         deq.push_front(&deq, MyClass{0, "Mike"});
         deq.push_front(&deq, MyClass{-1, "Mary"});
-	
+
         MyClass_print(&deq.front(&deq));
         MyClass_print(&deq.back(&deq));
         assert(deq.front(&deq).id == -1);
@@ -180,7 +180,7 @@ main() {
 
         // printf("Using at.\n");
 
-       for (size_t i = 0; i < 3; i++) {
+        for (size_t i = 0; i < 3; i++) {
             MyClass_print(&deq.at(&deq, i));
         }
 
@@ -210,22 +210,23 @@ main() {
         deq.clear(&deq);
 
         deq.dtor(&deq);
-		
+
         // Test equality.  Two deques compare equal if they are of the same
         // length and all the elements compare equal.  It is undefined behavior
         // if the two deques were constructed with different comparison
         // functions.
         {
             Deque_MyClass deq1, deq2;
+            // Compare on ID.  Name is ignored.
             Deque_MyClass_ctor(&deq1, MyClass_less_by_id);
             Deque_MyClass_ctor(&deq2, MyClass_less_by_id);
 
             deq1.push_back(&deq1, MyClass{1, "Joe"});
             deq1.push_back(&deq1, MyClass{2, "Jane"});
             deq1.push_back(&deq1, MyClass{3, "Mary"});
-            deq2.push_back(&deq2, MyClass{1, "Joe"});
-            deq2.push_back(&deq2, MyClass{2, "Jane"});
-            deq2.push_back(&deq2, MyClass{3, "Mary"});
+            deq2.push_back(&deq2, MyClass{1, "John"});
+            deq2.push_back(&deq2, MyClass{2, "Alice"});
+            deq2.push_back(&deq2, MyClass{3, "Mike"});
 
             assert(Deque_MyClass_equal(deq1, deq2));
 
@@ -237,7 +238,7 @@ main() {
             deq1.dtor(&deq1);
             deq2.dtor(&deq2);
         }
-		
+
     }
 
     // Test that it can handle other types.  Tests are the same, more or less.
@@ -341,7 +342,7 @@ main() {
             deq.push_front(&deq, i);
             deq.pop_back(&deq);
         }
-		
+
         // To do some computation, to prevent compiler from optimizing out.
         size_t sum = 0, max_size = 0;
         // Random.
@@ -378,7 +379,6 @@ main() {
         printf("%d push_backs, %d push_fronts, %d pop_backs, %d pop_fronts, %d size\n", pb, pf, pob, pof, (int) deq.size(&deq));
         deq.dtor(&deq);
     }
-
 
     // Test random access performance
     {
@@ -430,7 +430,7 @@ main() {
        }
 
        deq1.push_back(&deq1,20001);
-   
+      
        auto iter1 =  deq1.end(&deq1);
        iter1.dec(&iter1);	
        
@@ -448,7 +448,9 @@ main() {
        for(int i=0;i<=20001;i++) {
            deq2.push_back(&deq2,i);
        }
+
       assert(Deque_int_equal(deq1, deq2)); 
+
       deq1.dtor(&deq1);
       deq2.dtor(&deq2);
     }
@@ -458,21 +460,23 @@ main() {
         Deque_MyClass sort_by_id, sorted_by_id;
         Deque_MyClass sort_by_name, sorted_by_name;
 
+        // The two deques below compare on ID only.
         Deque_MyClass_ctor(&sort_by_id, MyClass_less_by_id);
         Deque_MyClass_ctor(&sorted_by_id, MyClass_less_by_id);
+        // The two deques below compare on name only.
         Deque_MyClass_ctor(&sort_by_name, MyClass_less_by_name);
         Deque_MyClass_ctor(&sorted_by_name, MyClass_less_by_name);
 
-        sort_by_id.push_back(&sort_by_id, MyClass{1, "Bob"});
-        sort_by_id.push_back(&sort_by_id, MyClass{3, "Sheldon"});
-        sort_by_id.push_back(&sort_by_id, MyClass{2, "Alex"});
+        sort_by_id.push_back(&sort_by_id, MyClass{1, "Mary"});
+        sort_by_id.push_back(&sort_by_id, MyClass{3, "Beth"});
+        sort_by_id.push_back(&sort_by_id, MyClass{2, "Kevin"});
 
         sorted_by_id.push_back(&sorted_by_id, MyClass{1, "Bob"});
         sorted_by_id.push_back(&sorted_by_id, MyClass{2, "Alex"});
         sorted_by_id.push_back(&sorted_by_id, MyClass{3, "Sheldon"});
 
-        sort_by_name.push_back(&sort_by_name, MyClass{1, "Bob"});
-        sort_by_name.push_back(&sort_by_name, MyClass{3, "Sheldon"});
+        sort_by_name.push_back(&sort_by_name, MyClass{9, "Bob"});
+        sort_by_name.push_back(&sort_by_name, MyClass{6, "Sheldon"});
         sort_by_name.push_back(&sort_by_name, MyClass{2, "Alex"});
 
         sorted_by_name.push_back(&sorted_by_name, MyClass{2, "Alex"});
@@ -492,7 +496,7 @@ main() {
         sort_by_name.dtor(&sort_by_name);
         sorted_by_name.dtor(&sorted_by_name);
     }
-/*
+
     // Performance testing for sorting
     {
       
@@ -521,7 +525,7 @@ main() {
        deq1.dtor(&deq1);
 
     }
-	*/
+
    // Print allocation info
    printf("%ld allocations totalling %ld bytes\n", alloc_call_count, total_bytes_allocated);
    int rv = fclose(devnull);
