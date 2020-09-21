@@ -15,7 +15,7 @@
 		bool isFull;																			\
 		size_t numElems;																		\
 		long curSize;																			\
-		char type_name[strlen("Deque_"#t) + 1];/*="Deque_"#t; len of type + nullbyte*/			\
+		char type_name[strlen("Deque_"#t) + 1];/* len of type + nullbyte*/			\
 		void (*ctor)(Deque_##t * , bool(*)(const t &, const t &));							\
 		void (*dtor)(Deque_##t *);															\
 		t & (*front)(Deque_##t *);																\
@@ -33,6 +33,7 @@
 		bool (*equal)(Deque_##t, Deque_##t);											\
 		bool (*compar)(const t &, const t &);									\
 		void (*sort)(Deque_##t *, Deque_##t##_Iterator , Deque_##t##_Iterator );\
+		int (*eq)(const void *, const void *, void *);	\
 	};																						\
 	struct Deque_##t##_Iterator{										\
 		void (*inc)(Deque_##t##_Iterator *);					\
@@ -45,7 +46,7 @@
 	};										\
 												\
 	void Deque_##t##_dtor(Deque_##t * dp){														\
-		if(dp && dp->data != nullptr && &dp != nullptr && &(dp->data) != nullptr){			\
+		if(dp && dp->data != nullptr){			\
 			free(dp->data);/*delete dp->data;*/											\
 		}																				\
 	}																							\
@@ -68,9 +69,7 @@
 		return dp->data[dp->tail];																\
 	}																							\
 	void Deque_##t##_push_back(Deque_##t * dp, t obj){											\
-		if(dp->numElems == dp->curSize ||													\
-		dp->head == dp->tail+1 ||																\
-		(dp->head == 0 && dp->tail == dp->curSize - 1)){	/*DEQUE FULL*/					\
+		if(dp->head == dp->tail+1 ||(dp->head == 0 && dp->tail == dp->curSize - 1)){	/*DEQUE FULL*/		\
 			t * temp_data = dp->data;								\
 			dp->data = (t*)malloc(sizeof(t)*dp->curSize*2);				\
 			if(dp->head > dp->tail){													\
@@ -109,9 +108,8 @@
 		dp->numElems += 1;																		\
 	}																							\
 	void Deque_##t##_push_front(Deque_##t * dp, t obj){											\
-		if(dp->numElems == dp->curSize ||											\
+		if(			\
 		(dp->head == 0 && dp->tail == dp->curSize - 1)){										\
-			printf("deque full\n");												\
 			t * temp_data = dp->data;					\
 			dp->data = (t*)malloc(sizeof(t)*dp->curSize*2);				\
 			if(dp->head > dp->tail){													\
@@ -215,35 +213,21 @@
 		dp->head = -1;								\
 		dp->tail = 0;																	\
 	}																					\
-	void Deque_##t##_sort(Deque_##t * dp, Deque_##t##_Iterator it2, Deque_##t##_Iterator it1){	\
-		\
-		Deque_##t##_Iterator iter = dp->begin(dp);							\
-		size_t range = (it1.value < it2.value) ? (it2.value-it1.value) : (it1.value - it2.value);		\
-		/*for(int i = 0; i < dp->curSize; i++){printf("at index %d, data is %d\n ",i, dp->data[i]);}*/\
-		qsort(&(dp->data[it2.value]), range, sizeof(t),(int(*)(const void* o1,const void* o2))dp->compar);	\
-		/*long start = 0;		\
-		long end = dp->curSize - 1;		\
-		t temp;						\
-		while(start < end){								\
-			temp = dp->data[start];								\
-			dp->data[start] = dp->data[end];							\
-			dp->data[end] = temp;							\
-			if(start < 100)printf("at start %d: %d\n", start, dp->data[start]);				\
-			start++;							\
-			end--;							\
-										\
-		}								\
-		dp->head = 0; dp->tail = dp->numElems;	*/		\
-/*		while(it1.value < it2.value){											\
-			t temp = dp->data[it1.value];						\
-			dp->data[it1.value] = dp->data[it2.value];									\
-			dp->data[it2.value] = temp;							\
-			it1.inc(&it1);									\
-			it2.dec(&it2);									\
-		}									*/				\
-		/*qsort(&(it1.deq->data), dp->size(dp), sizeof(t), (int(*)(const void *, const void *))dp->compar);	\
-		qsort(&(it2.deq->data), dp->size(dp), sizeof(t), (int(*)(const void *, const void *))dp->compar);*/	\
+	int Deque_##t##_eq(const void * ob1, const void * ob2, void * dp){								\
+		/*cast void pointers to correct types*/								\
+		t banana1 = *(t*)ob1;					\
+		t banana2 = *(t*)ob2;					\
+		Deque_##t * deq = (Deque_##t *) dp;					\
+		if (deq->compar(banana1, banana2)) return -1; /*ob1 > ob2*/					\
+		else if (deq->compar(banana2, banana1)) return 1;	/*ob1 < ob2 or true*/						\
+		return 0; /*values are equal*/								\
 	}								\
+	void Deque_##t##_sort(Deque_##t * dp, Deque_##t##_Iterator it2, Deque_##t##_Iterator it1){	\
+		size_t range = (it1.value < it2.value) ? (it2.value-it1.value) : (it1.value - it2.value);		\
+																										\
+		qsort_r(&(dp->data[it2.value]), range, sizeof(t),(int(*)(const void* o1,const void* o2, void *))dp->eq, dp);\
+												\
+	}																						\
 	Deque_##t##_Iterator Deque_##t##_begin(Deque_##t * dp){									\
 		Deque_##t##_Iterator it;									\
 		it.deq = dp;														\
@@ -300,6 +284,7 @@
 		dp->clear = &(Deque_##t##_clear);											\
 		dp->equal = &(Deque_##t##_equal);											\
 		dp->compar = (func);																	\
+		dp->eq = &(Deque_##t##_eq);																\
 		dp->sort = &(Deque_##t##_sort);					\
 	}
 

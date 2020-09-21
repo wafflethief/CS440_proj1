@@ -378,7 +378,8 @@ main() {
         printf("%d push_backs, %d push_fronts, %d pop_backs, %d pop_fronts, %d size\n", pb, pf, pob, pof, (int) deq.size(&deq));
         deq.dtor(&deq);
     }
-/*
+
+
     // Test random access performance
     {
        size_t sum = 0;
@@ -395,8 +396,8 @@ main() {
        }
        printf("Sum of all integers between %d and %d calculated using a deque is %lu.\n", lo, hi, sum);
        deq.dtor(&deq);
-    }*/
-/*
+    }
+
     // Test sort.
     // You must be able to work with the correct less-than function.
     {
@@ -429,7 +430,7 @@ main() {
        }
 
        deq1.push_back(&deq1,20001);
-      
+   
        auto iter1 =  deq1.end(&deq1);
        iter1.dec(&iter1);	
        
@@ -447,9 +448,7 @@ main() {
        for(int i=0;i<=20001;i++) {
            deq2.push_back(&deq2,i);
        }
-
       assert(Deque_int_equal(deq1, deq2)); 
-
       deq1.dtor(&deq1);
       deq2.dtor(&deq2);
     }
@@ -493,7 +492,7 @@ main() {
         sort_by_name.dtor(&sort_by_name);
         sorted_by_name.dtor(&sorted_by_name);
     }
-
+/*
     // Performance testing for sorting
     {
       
